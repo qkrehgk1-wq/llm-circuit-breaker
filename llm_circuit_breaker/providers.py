@@ -21,7 +21,19 @@ def anthropic_tier(api_key: str, model: str = "claude-sonnet-4-5", name: str = N
         cost = estimate_cost(model, resp.usage.input_tokens, resp.usage.output_tokens)
         return text, cost
 
-    return Tier(name=name or f"anthropic:{model}", call=_call)
+    def _stream(system: str, user: str, max_tokens: int):
+        with client.messages.stream(
+            model=model, max_tokens=max_tokens, system=system,
+            messages=[{"role": "user", "content": user}],
+        ) as stream:
+            for piece in stream.text_stream:
+                yield piece
+
+    def _estimate(prompt: str, output: str):  # streaming omits token usage → approximate
+        return estimate_cost(model, len(prompt) // 4, len(output) // 4)
+
+    return Tier(name=name or f"anthropic:{model}", call=_call,
+                stream_call=_stream, estimate=_estimate)
 
 
 def openai_tier(
@@ -49,7 +61,39 @@ def openai_tier(
         cost = estimate_cost(model, usage.get("prompt_tokens", 0), usage.get("completion_tokens", 0))
         return text, cost
 
-    return Tier(name=name or f"openai:{model}", call=_call)
+    def _stream(system: str, user: str, max_tokens: int):
+        import json
+        with requests.post(
+            base_url,
+            headers={"Authorization": f"Bearer {api_key}"},
+            json={
+                "model": model, "max_tokens": max_tokens, "stream": True,
+                "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
+            },
+            timeout=60, stream=True,
+        ) as r:
+            r.raise_for_status()
+            for line in r.iter_lines():
+                if not line:
+                    continue
+                s = line.decode("utf-8")
+                if not s.startswith("data: "):
+                    continue
+                payload = s[6:].strip()
+                if payload == "[DONE]":
+                    break
+                try:
+                    delta = json.loads(payload)["choices"][0]["delta"].get("content")
+                except Exception:
+                    continue
+                if delta:
+                    yield delta
+
+    def _estimate(prompt: str, output: str):
+        return estimate_cost(model, len(prompt) // 4, len(output) // 4)
+
+    return Tier(name=name or f"openai:{model}", call=_call,
+                stream_call=_stream, estimate=_estimate)
 
 
 def openrouter_tier(api_key: str, model: str = "google/gemini-2.5-flash", name: str = None) -> Tier:
@@ -122,4 +166,26 @@ def ollama_tier(model: str = "gemma:2b", base_url: str = "http://localhost:11434
             raise RuntimeError("Empty response from Ollama")
         return text, 0.0
 
-    return Tier(name=name or f"ollama:{model}", call=_call, is_local=True)
+    def _stream(system: str, user: str, max_tokens: int):
+        import json
+        with requests.post(
+            f"{base_url}/api/chat",
+            json={
+                "model": model, "stream": True,
+                "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
+                "options": {"num_predict": max_tokens},
+            },
+            timeout=180, stream=True,
+        ) as r:
+            r.raise_for_status()
+            for line in r.iter_lines():
+                if not line:
+                    continue
+                try:
+                    chunk = (json.loads(line.decode("utf-8")).get("message") or {}).get("content", "")
+                except Exception:
+                    continue
+                if chunk:
+                    yield chunk
+
+    return Tier(name=name or f"ollama:{model}", call=_call, is_local=True, stream_call=_stream)

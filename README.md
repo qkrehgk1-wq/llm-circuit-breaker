@@ -48,6 +48,42 @@ Once `llm_spend.jsonl` shows $5 spent today, every subsequent call for the
 rest of the day skips Anthropic entirely and goes straight to your local
 Ollama model — automatically, no code change, no surprise bill.
 
+## v0.2 — streaming, async, and a `cost` CLI
+
+**Stream tokens as they arrive** (`complete_stream`) — same tiers, same budget
+fallback, just yielded piece by piece. Built-in Anthropic / OpenAI / Ollama
+tiers stream natively; any tier without streaming yields its whole result once.
+
+```python
+for chunk in breaker.complete_stream(system="You are terse.", user="Explain RAG in 2 lines"):
+    print(chunk, end="", flush=True)
+```
+
+**Async** (`acomplete`) — keep many calls in flight at once:
+
+```python
+import asyncio
+results = asyncio.run(asyncio.gather(*[
+    breaker.acomplete(system="s", user=q) for q in questions
+]))
+```
+
+**See where the money went** — a budget breaker you can actually inspect:
+
+```bash
+llm-cb cost                 # today / total / per-tier, straight from the ledger
+llm-cb cost --ledger path   # point at a different ledger, or --json for raw
+```
+
+```text
+LLM spend  (llm_spend.jsonl)
+   today : $2.3100
+   total : $45.8700   (1240 calls)
+   by tier:
+     anthropic:claude-sonnet-4-5      980 calls   $44.2000
+     ollama:gemma:2b                  260 calls   $0.0000
+```
+
 ## How it decides
 
 1. Check today's + all-time spend against your limits (a plain JSONL

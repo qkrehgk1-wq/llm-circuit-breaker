@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "llm-circuit-breaker"
-version = "0.1.0"
+version = "0.2.0"
 description = "A tiny, readable circuit breaker for LLM calls: hard budget caps that fail over to a free local model instead of raising or overspending."
 readme = "README.md"
 license = { text = "MIT" }
@@ -16,6 +16,9 @@ dependencies = [
 [project.optional-dependencies]
 anthropic = ["anthropic>=0.30"]
 dev = ["pytest>=7.0"]
+
+[project.scripts]
+llm-cb = "llm_circuit_breaker.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["llm_circuit_breaker*"]
