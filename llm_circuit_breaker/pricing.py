@@ -15,6 +15,12 @@ PRICING = {
     "google/gemini-2.5-flash": {"input": 0.30, "output": 2.50},
     "anthropic/claude-sonnet-4.5": {"input": 3.0, "output": 15.0},
     "openai/gpt-4o-mini": {"input": 0.15, "output": 0.60},
+    # Frontier open-weight model, served via OpenRouter — cheap enough to carry
+    # the heavy agent work while paid frontier tiers stay as a last resort.
+    # Standard list price (not the launch promo) so the budget check fails safe.
+    # Confirm the exact slug on openrouter.ai/models before use.
+    "meituan/longcat-2.0": {"input": 0.75, "output": 2.95},
+    "longcat-2.0": {"input": 0.75, "output": 2.95},
 }
 
 # Conservative guess applied to any model not listed above, so unknown
