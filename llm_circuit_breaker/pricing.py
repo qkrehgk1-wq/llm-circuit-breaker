@@ -21,6 +21,12 @@ PRICING = {
     # Confirm the exact slug on openrouter.ai/models before use.
     "meituan/longcat-2.0": {"input": 0.75, "output": 2.95},
     "longcat-2.0": {"input": 0.75, "output": 2.95},
+    # More cheap frontier open-weight models on OpenRouter. Slugs vary by
+    # provider — confirm on openrouter.ai/models; prices are rough and
+    # rounded up so the budget check errs toward over-estimating.
+    "z-ai/glm-5": {"input": 0.60, "output": 1.92},
+    "deepseek/deepseek-v4": {"input": 0.44, "output": 0.88},
+    "qwen/qwen3.6": {"input": 0.50, "output": 1.95},
 }
 
 # Conservative guess applied to any model not listed above, so unknown
