@@ -1,5 +1,9 @@
 # llm-circuit-breaker
 
+[![PyPI](https://img.shields.io/pypi/v/llm-circuit-breaker.svg)](https://pypi.org/project/llm-circuit-breaker/)
+[![Python](https://img.shields.io/pypi/pyversions/llm-circuit-breaker.svg)](https://pypi.org/project/llm-circuit-breaker/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 A tiny, readable circuit breaker for LLM calls. When your budget runs out,
 it doesn't raise an exception or let the bill run — it falls through to a
 free local model so your agent keeps working.
