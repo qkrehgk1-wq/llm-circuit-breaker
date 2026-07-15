@@ -9,9 +9,30 @@ description = "A tiny, readable circuit breaker for LLM calls: hard budget caps 
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.9"
+authors = [{ name = "DDHH" }]
+keywords = [
+    "llm", "ollama", "local-llm", "budget", "cost-control",
+    "fallback", "circuit-breaker", "openai", "anthropic", "agents",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 dependencies = [
     "requests>=2.28",
 ]
+
+[project.urls]
+Homepage = "https://github.com/qkrehgk1-wq/llm-circuit-breaker"
+Repository = "https://github.com/qkrehgk1-wq/llm-circuit-breaker"
+Issues = "https://github.com/qkrehgk1-wq/llm-circuit-breaker/issues"
 
 [project.optional-dependencies]
 anthropic = ["anthropic>=0.30"]
